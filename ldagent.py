@@ -3,7 +3,7 @@ import time
 import cv2
 import subprocess
 from my_logger import logger
-import re
+import charset_normalizer
 
 # LDPLAYER_PATH = r'D:\LDPlayer\LDPlayer9'
 # EMU_INDEX = 0
@@ -39,17 +39,14 @@ def config(config_data):
         assert(False)        
     
     LD_EMU_NAME = config_data['LD_EMU_NAME']
+    logger.debug(f'AFCTNYVSXS LD_EMU_NAME = {LD_EMU_NAME}')
     process_ret = subprocess.run([LDCONSOLE_PATH, "list2"], capture_output=True, timeout=10)
     logger.debug(f'LFAYVDBGMH ldconsole list2 returncode = {process_ret.returncode}')
     assert(process_ret.returncode == 0)
     logger.debug(f'LWSKFFCJQD ldconsole list2 stdout = {process_ret.stdout}')
 
-    pout = process_ret.stdout
-    pout = pout.decode('utf-8')
-    pout = pout.split('\r\n')
-
+    pout = decode_console(process_ret.stdout).split('\r\n')
     # print(pout)
-
     EMU_IDX = None
     for line in pout:
         if len(line) <= 0: continue
@@ -107,7 +104,7 @@ def recover():
         logger.debug(f'NPGOIQWVWC list2 returncode = {process_ret.returncode}')
         assert(process_ret.returncode == 0)
         logger.debug(f'LWSKFFCJQD list2 stdout = {process_ret.stdout}')
-        list2_out = process_ret.stdout.decode('utf-8').split('\r\n')
+        list2_out = decode_console(process_ret.stdout).split('\r\n')
         for line in list2_out:
             if len(line) <= 0: continue
             linee = line.split(',')
@@ -158,7 +155,8 @@ def kill():
         process_ret = subprocess.run([LDCONSOLE_PATH, "isrunning", '--index', str(EMU_IDX)], capture_output=True, timeout=10)
         logger.debug(f'VNQSKTTRFC isrunning returncode = {process_ret.returncode}')
         assert(process_ret.returncode == 0)
-        process_stdout = process_ret.stdout.decode('utf-8').strip()
+        # process_stdout = process_ret.stdout.decode('utf-8').strip()
+        process_stdout = decode_console(process_ret.stdout).strip()
         logger.debug(f'ZSQKAYSNNX isrunning stdout = {process_stdout}')
         if process_stdout == 'stop':
             break
@@ -192,6 +190,11 @@ def adb_exec(cmd, timeout=5):
 #         cap_idx += 1
 #     cv2.imwrite('cap/cap_{:04d}.png'.format(cap_idx), img)
 #     cap_idx += 1
+
+def decode_console(bb):
+    ret = charset_normalizer.from_bytes(bb).best().output().decode('utf-8')
+    # print(ret)
+    return ret
 
 class LdAgentException(Exception):
     pass

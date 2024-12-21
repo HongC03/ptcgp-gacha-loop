@@ -1,6 +1,7 @@
 # TARGET_PACK: charizard, mewtwo, pikachu, mew
 TARGET_PACK: "mew"
-# refer to res/card
+
+# refer to res\card
 TARGET_CARD_LIST:
   - "cTR_20_000110_00_ERIKA_SR"
   - "cTR_20_000120_00_KASUMI_SR"
@@ -22,6 +23,8 @@ STOP_AT_RARE_PACK: true
 USERNAME: "Gachapon{IDX}"
 
 LD_EMU_NAME: "PTCGP-Gacha-00"
+
+# LDPLAYER_PATH: write "\" as "\\"
 LDPLAYER_PATH: "D:\\LDPlayer\\LDPlayer9"
 
 # Telegram Token and Chat ID

@@ -13,7 +13,7 @@ import card_list
 import config
 from my_logger import logger, update_logger
 from telegram_bot_helper import TelegramBotHelper
-
+import const
 
 # YYYYMMDDHH = time.strftime('%Y%m%d%H', time.localtime(time.time()))
 
@@ -33,19 +33,22 @@ async def main():
     parser.add_argument('config', type=str)
     args = parser.parse_args()
 
-    # config_data = yaml.load(open(args.config, 'r'), Loader=yaml.FullLoader)
     config_data = config.get_config(args.config)
     update_logger(config_data)
+
+    logger.debug('NLHFIUUXBS PTCPG-GL start')
+    logger.debug(f'EOWVSWOTMF MY_PATH={const.MY_PATH}')
+    logger.debug(f'KLZUCSPIFK config path={args.config}')
+    logger.debug(f'JSOFIXCPAG config_data={config_data}')
+
     TARGET_PACK = config_data['TARGET_PACK']
     TARGET_CARD_SET = set(config_data['TARGET_CARD_LIST'])
     USERNAME = config_data['USERNAME']
-    ldagent.config(config_data)
 
-    # ldagent.set_LDPLAYER_PATH(config_data['LDPLAYER_PATH'])
-    # ldagent.set_LD_EMU_NAME(config_data['LD_EMU_NAME'])
+    state_list.load_state()
+    card_list.load_card_img()
 
-    # if not ldagent.check():
-    #     return
+    config.check(config_data)
 
     os.makedirs('var', exist_ok=True)
     user_idx = 0
@@ -53,10 +56,7 @@ async def main():
         with open('var/user_idx.txt', 'r') as f:
             user_idx = int(f.read())
 
-    # load_state()
-    # load_card_img()
-    state_list.load_state()
-    card_list.load_card_img()
+    ldagent.config(config_data)
 
     flag_set = set()
 
@@ -495,6 +495,7 @@ async def main():
             # gacha result
             if state == 'xxx-gacha-05':
                 t = int(time.time())
+                logger.debug(f'ZNHRHBHGMT GACHA_RESULT: {t}')
                 os.makedirs('gacha_result', exist_ok=True)
                 ret_fn = os.path.join('gacha_result', f'{t}.png')
                 cv2.imwrite(ret_fn, img)
