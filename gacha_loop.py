@@ -1,15 +1,19 @@
+import asyncio
 import os
 import sys
 import time
+from datetime import datetime
+
 import cv2
 import ldagent
 import numpy as np
-import yaml
 import argparse
 import state_list
 import card_list
 import config
 from my_logger import logger, update_logger
+from telegram_bot_helper import TelegramBotHelper
+
 
 # YYYYMMDDHH = time.strftime('%Y%m%d%H', time.localtime(time.time()))
 
@@ -24,7 +28,7 @@ from my_logger import logger, update_logger
 
 # USERNAME = 'abc'
 
-def main():
+async def main():
     parser = argparse.ArgumentParser(description='Gacha loop')
     parser.add_argument('config', type=str)
     args = parser.parse_args()
@@ -42,7 +46,7 @@ def main():
 
     # if not ldagent.check():
     #     return
-    
+
     os.makedirs('var', exist_ok=True)
     user_idx = 0
     if os.path.exists('var/user_idx.txt'):
@@ -55,8 +59,8 @@ def main():
     card_list.load_card_img()
 
     flag_set = set()
-    
-    state_history = ['UNKNOWN']*10
+
+    state_history = ['UNKNOWN'] * 10
     state = 'UNKNOWN'
 
     emu_ok = False
@@ -93,19 +97,20 @@ def main():
 
             if 's03-start-01' in flag_set:
                 if state not in ['xxx-dialog-swc', 'xxx-dialog-sc', 'xxx-dialog-lw']:
-                    ldagent.tap(275,378)
+                    ldagent.tap(275, 378)
                     time.sleep(0.1)
                     continue
                 if state == 'xxx-dialog-lw':
                     flag_set.remove('s03-start-01')
 
             if 'xxx-gacha-03' in flag_set:
-                if state not in ['xxx-gacha-05','s06-gacha1-03','s06-gacha1-04'] and (not state.startswith('xxx-gacha-03')):
-                    ldagent.tap(150,304)
-                    ldagent.tap(281,381)
+                if state not in ['xxx-gacha-05', 's06-gacha1-03', 's06-gacha1-04'] and (
+                        not state.startswith('xxx-gacha-03')):
+                    ldagent.tap(150, 304)
+                    ldagent.tap(281, 381)
                     time.sleep(0.1)
                     continue
-                if state in ['xxx-gacha-05','s06-gacha1-03','s06-gacha1-04']:
+                if state in ['xxx-gacha-05', 's06-gacha1-03', 's06-gacha1-04']:
                     flag_set.remove('xxx-gacha-03')
 
             if 'xxx-swipeup' in flag_set:
@@ -221,11 +226,11 @@ def main():
                 time.sleep(0.5)
                 continue
             if state == 's06-gacha1-00':
-                ldagent.tap(150,200)
+                ldagent.tap(150, 200)
                 time.sleep(0.5)
                 continue
             if state == 's06-gacha1-01':
-                ldagent.tap(150,312)
+                ldagent.tap(150, 312)
                 time.sleep(6)
                 continue
             # if state == 's06-gacha1-02':
@@ -234,14 +239,14 @@ def main():
             #     continue
             if state == 's06-gacha1-03':
                 for _ in range(4):
-                    ldagent.tap(150,200)
+                    ldagent.tap(150, 200)
                     time.sleep(0.5)
                 time.sleep(3.5)
-                ldagent.tap(150,200)
+                ldagent.tap(150, 200)
                 time.sleep(10)
                 continue
             if state == 's06-gacha1-04':
-                ldagent.swipe(150,300,150,100,50)
+                ldagent.swipe(150, 300, 150, 100, 50)
                 time.sleep(10)
                 continue
             # if state == 's06-gacha1-05':
@@ -249,11 +254,11 @@ def main():
             #     time.sleep(10)
             #     continue
             if state == 's06-gacha1-06':
-                ldagent.tap(150,268)
+                ldagent.tap(150, 268)
                 time.sleep(0.5)
                 continue
             if state == 's06-gacha1-07':
-                ldagent.tap(150,360)
+                ldagent.tap(150, 360)
                 time.sleep(0.5)
                 continue
             # if state == 's06-gacha1-08':
@@ -261,7 +266,7 @@ def main():
             #     time.sleep(0.5)
             #     continue
             if state == 's07-mission-00':
-                ldagent.tap(273,347)
+                ldagent.tap(273, 347)
                 time.sleep(5)
                 continue
             # if state == 's07-mission-01':
@@ -269,19 +274,19 @@ def main():
             #     time.sleep(3)
             #     continue
             if state == 's07-mission-02':
-                ldagent.tap(150,194)
+                ldagent.tap(150, 194)
                 time.sleep(0.5)
                 continue
             if state == 's07-mission-03':
-                ldagent.tap(150,375)
+                ldagent.tap(150, 375)
                 time.sleep(3)
                 continue
             if state == 's07-mission-04':
-                ldagent.tap(150,257)
+                ldagent.tap(150, 257)
                 time.sleep(0.5)
                 continue
             if state == 's08-gacha2-02':
-                ldagent.tap(150,155)
+                ldagent.tap(150, 155)
                 time.sleep(3)
                 continue
             # if state == 's08-gacha2-03':
@@ -289,77 +294,76 @@ def main():
             #     time.sleep(5)
             #     continue
             if state == 's08-gacha2-04':
-                ldagent.tap(150,313)
+                ldagent.tap(150, 313)
                 time.sleep(5)
                 continue
 
             if state == 's09-wonder-00':
-                ldagent.tap(150,256)
+                ldagent.tap(150, 256)
                 time.sleep(0.5)
                 continue
             if state == 's09-wonder-01':
-                ldagent.tap(150,373)
+                ldagent.tap(150, 373)
                 time.sleep(0.5)
                 continue
             if state == 's09-wonder-04':
-                ldagent.tap(100,289)
+                ldagent.tap(100, 289)
                 time.sleep(3)
                 continue
             if state == 's09-wonder-10':
-                ldagent.tap(150,373)
+                ldagent.tap(150, 373)
                 time.sleep(0.5)
                 continue
             if state == 's09-wonder-11':
-                ldagent.tap(150,200)
+                ldagent.tap(150, 200)
                 time.sleep(0.5)
                 continue
             if state == 's09-wonder-12':
-                ldagent.tap(184,257)
+                ldagent.tap(184, 257)
                 time.sleep(0.5)
                 continue
             if state == 's09-wonder-13':
-                ldagent.tap(200,341)
+                ldagent.tap(200, 341)
                 time.sleep(5)
                 continue
             if state == 's09-wonder-14':
-                ldagent.tap(184,250)
+                ldagent.tap(184, 250)
                 time.sleep(5)
                 continue
             if state == 's09-wonder-15':
-                ldagent.tap(150,380)
+                ldagent.tap(150, 380)
                 time.sleep(5)
                 continue
             if state == 's09-wonder-16':
-                ldagent.tap(150,373)
+                ldagent.tap(150, 373)
                 time.sleep(0.5)
                 continue
 
             if state == 's11-hourglass-00':
-                ldagent.tap(200,311)
+                ldagent.tap(200, 311)
                 time.sleep(0.5)
                 continue
             if state == 's11-hourglass-01':
-                ldagent.tap(200,340)
+                ldagent.tap(200, 340)
                 time.sleep(10)
                 continue
 
             if state == 's12-end-00':
-                ldagent.tap(263,385)
+                ldagent.tap(263, 385)
                 time.sleep(0.5)
                 continue
             if state == 's12-end-01':
-                ldagent.tap(161,325)
+                ldagent.tap(161, 325)
                 time.sleep(0.5)
                 continue
             if state == 's12-end-02':
-                ldagent.tap(150,173)
+                ldagent.tap(150, 173)
                 time.sleep(0.5)
                 continue
             if state == 's12-end-03':
-                ldagent.tap(150,327)
+                ldagent.tap(150, 327)
                 time.sleep(0.5)
                 continue
-
 
             if state == 'xxx-cont':
                 ldagent.tap(150, 360)
@@ -402,88 +406,88 @@ def main():
 
             if state == 'xxx-gacha-00-charizard':
                 if TARGET_PACK == 'pikachu':
-                    ldagent.tap(85,214)
+                    ldagent.tap(85, 214)
                     time.sleep(0.5)
                     continue
                 if TARGET_PACK == 'mewtwo':
-                    ldagent.tap(218,221)
+                    ldagent.tap(218, 221)
                     time.sleep(0.5)
                     continue
                 if TARGET_PACK == 'mew':
-                    ldagent.tap(150,347)
+                    ldagent.tap(150, 347)
                     time.sleep(0.5)
                     continue
-                ldagent.tap(150,200)
+                ldagent.tap(150, 200)
                 time.sleep(0.5)
                 continue
             if state == 'xxx-gacha-00-mew':
                 if TARGET_PACK != 'mew':
-                    ldagent.tap(150,347)
+                    ldagent.tap(150, 347)
                     time.sleep(0.5)
                     continue
-                ldagent.tap(150,200)
+                ldagent.tap(150, 200)
                 time.sleep(0.5)
                 continue
             if state == 'xxx-gacha-00-mewtwo':
                 if TARGET_PACK == 'charizard':
-                    ldagent.tap(85,214)
+                    ldagent.tap(85, 214)
                     time.sleep(0.5)
                     continue
                 if TARGET_PACK == 'pikachu':
-                    ldagent.tap(218,221)
+                    ldagent.tap(218, 221)
                     time.sleep(0.5)
                     continue
                 if TARGET_PACK == 'mew':
-                    ldagent.tap(150,347)
+                    ldagent.tap(150, 347)
                     time.sleep(0.5)
                     continue
-                ldagent.tap(150,200)
+                ldagent.tap(150, 200)
                 time.sleep(0.5)
                 continue
             if state == 'xxx-gacha-00-pikachu':
                 if TARGET_PACK == 'mewtwo':
-                    ldagent.tap(85,214)
+                    ldagent.tap(85, 214)
                     time.sleep(0.5)
                     continue
                 if TARGET_PACK == 'charizard':
-                    ldagent.tap(218,221)
+                    ldagent.tap(218, 221)
                     time.sleep(0.5)
                     continue
                 if TARGET_PACK == 'mew':
-                    ldagent.tap(150,347)
+                    ldagent.tap(150, 347)
                     time.sleep(0.5)
                     continue
-                ldagent.tap(150,200)
+                ldagent.tap(150, 200)
                 time.sleep(0.5)
                 continue
 
             if state.startswith('xxx-gacha-01-'):
                 if TARGET_PACK != state[13:]:
-                    ldagent.tap(150,348)
+                    ldagent.tap(150, 348)
                     time.sleep(0.5)
                     continue
-                ldagent.tap(150,313)
+                ldagent.tap(150, 313)
                 time.sleep(6)
                 continue
 
             if state.startswith('xxx-gacha-02-'):
-                ldagent.tap(275,378)
+                ldagent.tap(275, 378)
                 time.sleep(0.5)
                 continue
 
             if state.startswith('xxx-gacha-03-'):
-                ldagent.swipe(45,231,253,231,1000)
+                ldagent.swipe(45, 231, 253, 231, 1000)
                 flag_set.add('xxx-gacha-03')
                 time.sleep(0.5)
                 continue
 
             if state == 'xxx-gacha-04':
-                ldagent.tap(275,378)
+                ldagent.tap(275, 378)
                 flag_set.add('xxx-gacha-03')
                 time.sleep(0.5)
                 continue
             if state == 'xxx-gacha-04-x':
-                ldagent.tap(275,378)
+                ldagent.tap(275, 378)
                 flag_set.add('xxx-gacha-03')
                 time.sleep(0.5)
                 continue
@@ -495,44 +499,66 @@ def main():
                 ret_fn = os.path.join('gacha_result', f'{t}.png')
                 cv2.imwrite(ret_fn, img)
                 gacha_result = card_list.read_gacha_result(img)
+                tg_bot_helper = TelegramBotHelper(
+                    config_data['TG_TOKEN'],
+                    config_data['TG_CHAT_ID']
+                )
+                current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 if set(gacha_result) & TARGET_CARD_SET:
-                    sys.exit(0)
+                    await tg_bot_helper.send_message(
+                        config_data['LD_EMU_NAME']
+                        + "No."
+                        + str(user_idx)
+                        + " Pack: "
+                        + current_time
+                    )
+                    await tg_bot_helper.send_ndarray_image(img)
+                    time.sleep(30)
+                    # sys.exit(0)
                 if config_data['STOP_AT_RARE_PACK']:
                     all_rare = gacha_result
                     all_rare = map(is_rare, all_rare)
                     all_rare = all(all_rare)
                     if all_rare:
+                        await tg_bot_helper.send_message(
+                            config_data['LD_EMU_NAME']
+                            + "No."
+                            + str(user_idx)
+                            + " is GodPack: "
+                            + current_time
+                        )
+                        await tg_bot_helper.send_ndarray_image(img)
                         sys.exit(0)
-                ldagent.tap(150,377)
+                ldagent.tap(150, 377)
                 time.sleep(8)
                 continue
 
             if state == 'xxx-home':
                 if TARGET_PACK in ['charizard', 'pikachu', 'mewtwo']:
-                    ldagent.tap(185,154)
+                    ldagent.tap(185, 154)
                 if TARGET_PACK == 'mew':
-                    ldagent.tap(111,154)
+                    ldagent.tap(111, 154)
                 time.sleep(8)
                 continue
 
             if state == 'xxx-msg':
-                ldagent.tap(150,200)
+                ldagent.tap(150, 200)
                 time.sleep(0.5)
                 continue
 
             if state == 'xxx-noitem':
-                ldagent.tap(100,280)
+                ldagent.tap(100, 280)
                 time.sleep(0.5)
                 continue
 
             if state == 'xxx-swipeup':
-                ldagent.tap(275,378)
+                ldagent.tap(275, 378)
                 flag_set.add(state)
                 time.sleep(0.5)
                 continue
 
             if state.startswith('xxx-tips'):
-                ldagent.tap(150,377)
+                ldagent.tap(150, 377)
                 time.sleep(3)
                 continue
 
@@ -540,27 +566,30 @@ def main():
             logger.error(f'MYBPMBYDXK LdAgentException: {e}')
             emu_ok = False
             ldagent.kill()
-        
+
 
 RARE_SUFFIX_LIST = ['_UR', '_IM', '_SR', '_SAR', '_AR']
+
+
 def is_rare(card_id):
     for suffix in RARE_SUFFIX_LIST:
         if card_id.endswith(suffix):
             return True
     return False
 
-        # if state == 'center':
-        #     ldagent.tap(150,200)
-        #     time.sleep(0.5)
-        #     continue
-        # if state == 'skip':
-        #     ldagent.tap(275,378)
-        #     time.sleep(0.5)
-        #     continue
-        # if state == 'click-cont':
-        #     ldagent.tap(150,377)
-        #     time.sleep(8)
-        #     continue
+    # if state == 'center':
+    #     ldagent.tap(150,200)
+    #     time.sleep(0.5)
+    #     continue
+    # if state == 'skip':
+    #     ldagent.tap(275,378)
+    #     time.sleep(0.5)
+    #     continue
+    # if state == 'click-cont':
+    #     ldagent.tap(150,377)
+    #     time.sleep(8)
+    #     continue
+
 
 # state_data_list = []
 
@@ -648,4 +677,4 @@ def is_rare(card_id):
 #     return diff
 
 if __name__ == '__main__':
-    main()
+    asyncio.run(main())
