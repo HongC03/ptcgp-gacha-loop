@@ -2,3 +2,4 @@ charset-normalizer
 numpy
 opencv-python
 pyyaml
+python-telegram-bot
