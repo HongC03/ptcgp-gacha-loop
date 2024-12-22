@@ -44,6 +44,7 @@ async def main():
     TARGET_PACK = config_data['TARGET_PACK']
     TARGET_CARD_SET = set(config_data['TARGET_CARD_LIST'])
     USERNAME = config_data['USERNAME']
+    PACK_COUNT_TO_RELAUNCH = config_data['PACK_COUNT_TO_RELAUNCH']
 
     state_list.load_state()
     card_list.load_card_img()
@@ -65,6 +66,9 @@ async def main():
 
     emu_ok = False
 
+    pack_count_for_relaunch = 0
+    relaunched_ref = [False]
+
     while True:
         try:
             update_logger(config_data)
@@ -78,6 +82,11 @@ async def main():
             if state != 'UNKNOWN':
                 state_history.append(state)
             state_history = state_history[-5:]
+
+            if pack_count_for_relaunch != 0 and pack_count_for_relaunch % PACK_COUNT_TO_RELAUNCH == 0:
+                relaunched_ref[0] = False
+                ldagent.relaunch(relaunched_ref)
+                pack_count_for_relaunch = 0
 
             img = ldagent.screencap().astype(np.float32)
 
@@ -500,6 +509,7 @@ async def main():
                 ret_fn = os.path.join('gacha_result', f'{t}.png')
                 cv2.imwrite(ret_fn, img)
                 gacha_result = card_list.read_gacha_result(img)
+                pack_count_for_relaunch += 1
                 tg_bot_helper = TelegramBotHelper(
                     config_data['TG_TOKEN'],
                     config_data['TG_CHAT_ID']

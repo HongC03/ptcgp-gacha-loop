@@ -31,5 +31,8 @@ LDPLAYER_PATH: "D:\\LDPlayer\\LDPlayer9"
 TG_TOKEN: ""
 TG_CHAT_ID: ""
 
+# Better set it to multiples of 4
+PACK_COUNT_TO_RELAUNCH: 160
+
 # Enable debug mode to log, default is true
 # DEBUG_MODE: false
